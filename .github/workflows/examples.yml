@@ -1,0 +1,51 @@
+name: Example builds
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  native:
+    name: Build ${{ matrix.example }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        example: [counter, clock]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hecrj/setup-rust-action@v2
+      - name: Build example
+        run: cargo build --release --example ${{ matrix.example }}
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.example }}-${{ matrix.os }}
+          path: target/release/examples/${{ matrix.example }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+
+  android:
+    name: Build ${{ matrix.example }} for Android
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example: [counter, clock]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hecrj/setup-rust-action@v2
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+      - name: Install Android target
+        run: rustup target add aarch64-linux-android
+      - name: Set up Android NDK
+        uses: nttld/setup-android@v2
+        with:
+          api-level: 33
+          ndk-version: 26.1.10909125
+      - name: Build example
+        run: cargo ndk -t aarch64-linux-android build --release --example ${{ matrix.example }}
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.example }}-aarch64-linux-android
+          path: target/aarch64-linux-android/release/examples/${{ matrix.example }}

@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 jobs:
   todos_linux:
     runs-on: ubuntu-latest
@@ -10,7 +13,7 @@ jobs:
     - uses: hecrj/setup-rust-action@v2
     - name: Install cargo-deb
       run: cargo install cargo-deb
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         export DEBIAN_FRONTED=noninteractive
@@ -37,7 +40,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: hecrj/setup-rust-action@v2
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
     - name: Enable static CRT linkage
       run: |
         echo '[target.x86_64-pc-windows-msvc]' >> .cargo/config
@@ -57,7 +60,7 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: hecrj/setup-rust-action@v2
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
     - name: Build todos binary
       env:
         MACOSX_DEPLOYMENT_TARGET: 10.14
@@ -74,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: hecrj/setup-rust-action@v2
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
     - name: Install cross
       run: cargo install cross
     - name: Build todos binary for Raspberry Pi 3/4 (64 bits)
